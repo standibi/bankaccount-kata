@@ -29,7 +29,7 @@ public class BankAccountTest {
     }
 
     @Test(expected = IllegalOperationException.class)
-    public void depositOfNegativeAmountShouldThowException(){
+    public void depositOfNegativeAmountShouldThrowException(){
         bankAccount.deposit(new BigDecimal(-100));
     }
 
@@ -46,9 +46,11 @@ public class BankAccountTest {
     }
 
     @Test(expected = InsufficientFundException.class)
-    public void withdrawalOfNegativeAmountShouldThowException(){
+    public void withdrawalOfNegativeAmountShouldThrowException(){
         bankAccount.withdraw(new BigDecimal(100));
     }
+
+
 
 
 }

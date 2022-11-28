@@ -1,6 +1,7 @@
 package com.audensiel.banking.domain.account;
 
 import com.audensiel.banking.domain.operation.Operation;
+import com.audensiel.banking.domain.operation.OperationType;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -23,20 +24,29 @@ public class BankAccount {
      * @param amount
      */
     public void deposit(BigDecimal amount) {
-        if (amount.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalOperationException("Cannot deposit negative amount");
-        }
-        balance = balance.add(amount);
+       processOperation(OperationType.DEPOSIT, amount);
     }
 
+    /**
+     * Withdaw money from bank account
+     *
+     * @param amount
+     */
+
     public void withdraw(BigDecimal amount) {
+        processOperation(OperationType.WITHDRAWAL, amount);
+    }
+
+    private void processOperation(OperationType operationType, BigDecimal amount) {
         if (amount.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalOperationException("Cannot withdraw negative amount");
+            throw new IllegalOperationException("This operation requires a positive amount");
         }
-        if (balance.compareTo(amount) < 0) {
-            throw new InsufficientFundException(String.format("Account balance is less than ", amount));
+        if (operationType == OperationType.WITHDRAWAL && balance.compareTo(amount) < 0) {
+            throw new InsufficientFundException("Cannot withdraw more than account balance");
         }
-        balance = balance.subtract(amount);
+
+        balance = operationType == OperationType.WITHDRAWAL ? balance.subtract(amount) : balance.add(amount);
+
     }
 
     public BigDecimal getBalance() {
