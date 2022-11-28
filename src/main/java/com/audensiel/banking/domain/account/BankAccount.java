@@ -4,16 +4,16 @@ import com.audensiel.banking.domain.operation.Operation;
 import com.audensiel.banking.domain.operation.OperationType;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
 public class BankAccount {
 
-    private long id;
     private BigDecimal balance;
     private List<Operation> operations;
 
-    public BankAccount(long id, BigDecimal balance, List operations) {
+    public BankAccount(BigDecimal balance, List<Operation> operations) {
         this.balance = Objects.requireNonNull(balance, "Account balance cannot be null");
         this.operations = operations;
     }
@@ -22,9 +22,10 @@ public class BankAccount {
      * Make a deposit to account
      *
      * @param amount
+     * @param dateTime
      */
-    public void deposit(BigDecimal amount) {
-       processOperation(OperationType.DEPOSIT, amount);
+    public void deposit(BigDecimal amount, LocalDateTime dateTime) {
+        processOperation(OperationType.DEPOSIT, amount, dateTime);
     }
 
     /**
@@ -33,24 +34,21 @@ public class BankAccount {
      * @param amount
      */
 
-    public void withdraw(BigDecimal amount) {
-        processOperation(OperationType.WITHDRAWAL, amount);
+    public void withdraw(BigDecimal amount, LocalDateTime dateTime) {
+        processOperation(OperationType.WITHDRAWAL, amount, dateTime);
     }
 
-    private void processOperation(OperationType operationType, BigDecimal amount) {
-        if (amount.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalOperationException("This operation requires a positive amount");
-        }
-        if (operationType == OperationType.WITHDRAWAL && balance.compareTo(amount) < 0) {
-            throw new InsufficientFundException("Cannot withdraw more than account balance");
-        }
-
-        balance = operationType == OperationType.WITHDRAWAL ? balance.subtract(amount) : balance.add(amount);
-
+    private void processOperation(OperationType operationType, BigDecimal amount, LocalDateTime dateTime) {
+        final Operation operation = new Operation(operationType, dateTime, amount);
+        balance = operation.process(balance);
+        operations.add(operation);
     }
 
     public BigDecimal getBalance() {
         return this.balance;
     }
 
+    public List<Operation> statement() {
+        return List.copyOf(operations);
+    }
 }
