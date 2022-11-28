@@ -33,12 +33,22 @@ public class BankAccountTest {
         bankAccount.deposit(new BigDecimal(-100));
     }
 
-    @Test(expected = IllegalOperationException.class)
-    public void depositOfZeroAmountShouldThowException(){
-        bankAccount.deposit(BigDecimal.ZERO);
+    @Test
+    public void withdrawalShouldDecreaseBalanceByAmountWithdrawn(){
+        final BigDecimal initialAmount = new BigDecimal(100);
+        bankAccount.deposit(initialAmount);
+        final BigDecimal amountToWithdraw = new BigDecimal(70);
+
+        bankAccount.withdraw(amountToWithdraw);
+
+        final BigDecimal balanceAfterWithdawal = bankAccount.getBalance();
+        assertThat(balanceAfterWithdawal, equalTo(initialAmount.subtract(amountToWithdraw)));
     }
 
-
+    @Test(expected = InsufficientFundException.class)
+    public void withdrawalOfNegativeAmountShouldThowException(){
+        bankAccount.withdraw(new BigDecimal(100));
+    }
 
 
 }
